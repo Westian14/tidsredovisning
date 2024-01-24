@@ -94,7 +94,81 @@ function test_HamtaUppgifterSida(): string {
 function test_HamtaAllaUppgifterDatum(): string {
     $retur = "<h2>test_HamtaAllaUppgifterDatum</h2>";
     try {
-        $retur .= "<p class='error'>Inga tester implementerade</p>";
+        //Misslyckas med från=igår till=2024-01-01
+        $svar=hamtaDatum("igår", "2024-01-01");
+        if($svar->getStatus()===400) {
+            $retur .="<p class='ok'>Misslyckades med att hämta poster mellan <i>igår</i> och 2024-01-01</p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckat test med att hämta poster mellan <i>igår</i> och 2024-01-01<br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 400</p>";
+        }
+
+        //Misslyckas med från 2024-01-01 till=imorgon
+        $svar=hamtaDatum("2024-01-01", "imorgon");
+        if($svar->getStatus()===400) {
+            $retur .="<p class='ok'>Misslyckades med att hämta poster mellan 2024-01-01 och <i>imorgon</i></p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckat test med att hämta poster mellan 2024-01-01 och <i>imorgon</i><br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 400</p>";
+        }
+
+        //Misslyckas med från=2024-12-37 till=2024-01-01
+        $svar=hamtaDatum("2024-12-37", "2024-01-01");
+        if($svar->getStatus()===400) {
+            $retur .="<p class='ok'>Misslyckades med att hämta poster mellan 2024-12-37 och 2024-01-01</p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckat test med att hämta poster mellan 2024-12-37 och 2024-01-01<br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 400</p>";
+        }
+
+        //Misslyckas med från=2024-01-01 till=2024-12-37
+        $svar=hamtaDatum("2024-01-01", "2024-12-37");
+        if($svar->getStatus()===400) {
+            $retur .="<p class='ok'>Misslyckades med att hämta poster mellan 2024-01-01 och 2024-12-37</p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckat test med att hämta poster mellan 2024-01-01 och 2024-12-37<br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 400</p>";
+        }
+
+        //Misslyckas med från=2024-01-01 till=2023-01-01
+        $svar=hamtaDatum("2024-01-01", "2023-01-01");
+        if($svar->getStatus()===400) {
+            $retur .="<p class='ok'>Misslyckades med att hämta poster mellan 2024-01-01 och 2023-01-01</p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckat test med att hämta poster mellan 2024-01-01 och 2023-01-01<br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 400</p>";
+        }
+
+        //Lyckas med korrekta datum
+
+        //Leta upp en månad med poster
+        $db=connectDb();
+        $stmt=$db->query("SELECT YEAR(Datum), MONTH(Datum), COUNT(*) AS antal "
+            . "FROM uppgifter "
+            . "GROUP BY YEAR(Datum), MONTH(Datum) "
+            . "ORDER BY antal DESC "
+            . "LIMIT 0,1");
+        $row=$stmt->fetch();
+        $ar=$row[0];
+        $manad=substr("0$row[1]",-2);
+        $antal=$row[2];
+
+        //Hämta alla poster från den månaden
+        $svar=hamtaDatum("$ar-$manad-01", date("Y-m-d", strtotime("Last day of $ar-$manad")));
+        if($svar->getStatus()===200 && count($svar->getContent()->tasks)===$antal) {
+            $retur .="<p class='ok'>Lyckades med att hämta $antal poster för månad $ar-$manad</p>";
+        }
+        else {
+            $retur .="<p class='error'>Misslyckades med att hämta poster för $ar-$manad<br>"
+            . $svar->getStatus() . " returnerades istället för förväntat 200<br>"
+            . print_r($svar->getContent(), true) . "</p>";
+        }
+
     } catch (Exception $ex) {
         $retur .= "<p class='error'>Något gick fel, meddelandet säger:<br> {$ex->getMessage()}</p>";
     }

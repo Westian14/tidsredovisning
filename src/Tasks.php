@@ -99,7 +99,7 @@ function hamtaSida(string $sida, int $posterPerSida=10): Response {
         $tid=new DateTime($row["Tid"]);
         $rad->time=$tid->format("H:i");
         $rad->activity=$row["Namn"];
-        $rad->date=$row["Beskrivning"];
+        $rad->description=$row["Beskrivning"];
         $uppgifter[]=$rad;
     }
 
@@ -117,7 +117,62 @@ function hamtaSida(string $sida, int $posterPerSida=10): Response {
  * @return Response
  */
 function hamtaDatum(string $from, string $tom): Response {
-    
+    //Kontrollera indata
+    $fromDate=DateTimeImmutable::createFromFormat("Y-m-d", $from);
+    $tomDate=DateTimeImmutable::createFromFormat("Y-m-d", $tom);
+    $datumFel=[];
+
+    if($fromDate===false) {
+        $datumFel[]="Ogiltig från-datum";
+    }
+    if($tomDate===false) {
+        $datumFel[]="Ogiltig till-datum";
+    }
+    if($fromDate && $fromDate->format("Y-m-d")!==$from) {
+        $datumFel[]="Ogiltigt angivet från-datum";
+    }
+    if($tomDate && $tomDate->format("Y-m-d")!==$tom) {
+        $datumFel[]="Ogiltigt angivet till-datum";
+    }
+    if($fromDate && $tomDate && $fromDate->format("Y-m-d")>$tomDate->format("Y-m-d")) {
+        $datumFel[]="Från-datum får inte vara större än till-datum";
+    }
+
+    if(count($datumFel)>0) {
+        $retur=new stdClass();
+        $retur->error=$datumFel;
+        array_unshift($retur->error, "Bad request");
+        return new Response($retur, 400);
+    }
+
+    //Koppla databas
+    $db=connectDb();
+
+    //Exekvera sql
+    $stmt=$db->prepare("SELECT u.ID, Datum, Tid, AktivitetID, Namn, Beskrivning "
+    . "FROM uppgifter u INNER JOIN aktiviteter a ON AktivitetID=a.ID "
+    . "WHERE Datum BETWEEN :from AND :to "
+    . "ORDER BY Datum ");
+    $stmt->execute(["from"=>$fromDate->format("Y-m-d"), "to"=>$tomDate->format("Y-m-d")]);
+    $result=$stmt->fetchAll();
+
+    $uppgifter=[];
+    foreach($result as $row) {
+        $rad=new stdClass();
+        $rad->id=$row["ID"];
+        $rad->activityId=$row["AktivitetID"];   
+        $rad->date=$row["Datum"];
+        $tid=new DateTime($row["Tid"]);
+        $rad->time=$tid->format("H:i");
+        $rad->activity=$row["Namn"];
+        $rad->description=$row["Beskrivning"];
+        $uppgifter[]=$rad;
+    }
+
+    //Returnera svar
+    $retur=new stdClass();
+    $retur->tasks=$uppgifter;
+    return new Response($retur);
 }
 
 /**
