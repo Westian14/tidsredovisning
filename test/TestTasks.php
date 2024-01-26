@@ -402,8 +402,10 @@ function test_KontrolleraIndata(): string {
         $aktiviteter=$content["activities"];
         $aktivitetId=$aktiviteter[0]->id;
 
+        $nextDay=date('Y-m-d', strtotime(date("Y-m-d"). ' +1 day'));
+
         $postData=["time"=>"01:00"
-            , "date"=>date("Y-m-d")
+            , "date"=>"$nextDay"
             , "activityId"=>"$aktivitetId"];
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
@@ -420,38 +422,69 @@ function test_KontrolleraIndata(): string {
             , "date"=>"2024-01-01"
             , "activityId"=>"$aktivitetId"];
         $svar=kontrolleraIndata($postData);
-        if($svar!=="") {
+        $numFel=count($svar);
+        if($numFel===1) {
             $retur .="<p class='ok'>Kontroll av ogiltigt angiven tid lyckades</p>";
         }
         else {
-            $retur .="<p class='error'>Kontroll av ogiltigt angiven tid misslyckades</p>";
+            $retur .="<p class='error'>Kontroll av ogiltigt angiven tid misslyckades<br>"
+            . $numFel . " stycken fel returnerades istället för förväntat 1</p>";
         }
 
+        $postData=["time"=>"01:00:00"
+            , "date"=>"2024-01-01"
+            , "activityId"=>"$aktivitetId"];
+        $svar=kontrolleraIndata($postData);
+        $numFel=count($svar);
+        if($numFel===1) {
+            $retur .="<p class='ok'>Kontroll av felaktigt angiven tid lyckades</p>";
+        }
+        else {
+            $retur .="<p class='error'>Kontroll av felaktigt angiven tid misslyckades<br>"
+            . $numFel . " stycken fel returnerades istället för förväntat 1</p>";
+        }
+
+        $postData=["time"=>"09:00"
+            , "date"=>"2024-01-01"
+            , "activityId"=>"$aktivitetId"];
+        $svar=kontrolleraIndata($postData);
+        $numFel=count($svar);
+        if($numFel===1) {
+            $retur .="<p class='ok'>Kontroll av tid längre än 8 timmar lyckades</p>";
+        }
+        else {
+            $retur .="<p class='error'>Kontroll av tid längre än 8 timmar misslyckades<br>"
+            . $numFel . " stycken fel returnerades istället för förväntat 1</p>";
+        }
 
         //Kontrollera att rätt indata fungerar
         $postData=["time"=>"01:00"
             , "date"=>"2024-01-01"
             , "activityId"=>"$aktivitetId"];
         $svar=kontrolleraIndata($postData);
-        if(count($svar)===0) {
-            $retur .="<p class='error'>Kontroll av rätt indata misslyckades</p>";
+        $numFel=count($svar);
+        if($numFel===0) {
+            $retur .="<p class='ok'>Kontroll av rätt indata lyckades</p>";
         }
         else {
-            $retur .="<p class='ok'>Kontroll av rätt indata lyckades</p>";
+            $retur .="<p class='error'>Kontroll av rätt indata misslyckades<br>"
+            . $numFel . " stycken fel returnerades istället för förväntat 1</p>";
         }
 
         //Kontrollera aktivitetId
         rsort($aktiviteter);
-        $aktivitetId=$aktiviteter[0]->id++;
+        $aktivitetId=$aktiviteter[0]->id+1;
         $postData=["time"=>"01:00"
             , "date"=>"2024-01-01"
             , "activityId"=>"$aktivitetId"];
         $svar=kontrolleraIndata($postData);
-        if($svar!=="") {
+        $numFel=count($svar);
+        if($numFel===1) {
             $retur .="<p class='ok'>Kontroll av id som inte finns lyckades</p>";
         }
         else {
-            $retur .="<p class='error'>Kontroll av id som inte finns misslyckades</p>";
+            $retur .="<p class='error'>Kontroll av id som inte finns misslyckades<br>"
+            . $numFel . " stycken fel returnerades istället för förväntat 1</p>";
         }
 
     } catch (Exception $ex) {
