@@ -49,13 +49,13 @@ function hamtaAllaAktiviteter(): Response {
     $retur=[];
     foreach($result as $item) {
         $post=new stdClass();
-        $post->ID=$item["ID"];
-        $post->Namn=$item["Namn"];
+        $post->id=$item["ID"];
+        $post->activity=$item["Namn"];
         $retur[]=$post;
     }
 
     //Skicka svar
-    return new Response($retur);
+    return new Response(["activities"=>$retur]);
 }
 
 /**

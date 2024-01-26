@@ -211,6 +211,7 @@ function sparaNyUppgift(array $postData): Response {
     "AktivitetID"=>$postData["activityId"]]);
 
     //Kontrollera svaret
+    //Skicka utdata
     if($stmt->rowCount()===1) {
         $retur=new stdClass();
         $retur->id=$db->lastInsertId();
@@ -222,9 +223,7 @@ function sparaNyUppgift(array $postData): Response {
         $retur=new stdClass();
         $retur->error=["Fel vid databasanrop", "Kunde inte skapa post"];
         return new Response($retur, 400);
-    }
-
-    //Skicka utdata
+    }    
 }
 
 /**
