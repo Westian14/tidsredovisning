@@ -181,7 +181,44 @@ function hamtaDatum(string $from, string $tom): Response {
  * @return Response
  */
 function hamtaEnskildUppgift(string $id): Response {
-    
+    //Kontrollera indata
+    $kontrolleratId=filter_var($id, FILTER_VALIDATE_INT);
+    if(!$kontrolleratId) {
+        $retur=new stdClass();
+        $retur->error=["Bad request", "Felaktigt angivet id"];
+        return new Response($retur, 400);
+    }
+
+    if($kontrolleratId && $kontrolleratId<1) {
+        $retur=new stdClass();
+        $retur->error=["Bad request", "Ogiltigt id"];
+        return new Response($retur, 400);
+    }
+
+    //Koppla databas
+    $db=connectDb();
+
+    //Exekvera sql
+    $stmt=$db->prepare("SELECT u.ID, Tid, Datum, Beskrivning, Namn, AktivitetID "
+    . "FROM uppgifter u INNER JOIN aktiviteter a ON AktivitetID=a.ID "
+    . "WHERE u.ID=:id");
+    $stmt->execute(["id"=>$kontrolleratId]);
+
+    //Returnera svar
+    if($row=$stmt->fetch()) {
+        $retur=new stdClass();
+        $retur->id=$row["ID"];
+        $retur->date=$row["Datum"];
+        $retur->time=substr($row["Tid"], 0,-3);
+        $retur->activity=$row["Namn"];
+        $retur->activityId=$row["AktivitetID"];
+        return new Response($retur);
+    }
+    else {
+        $retur=new stdClass();
+        $retur->error=["Hämta misslyckades", "Kunde inte hitta uppgift med angivet id"];
+        return new Response($retur, 400);
+    }
 }
 
 /**
