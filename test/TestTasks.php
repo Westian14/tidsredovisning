@@ -475,7 +475,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av ogiltigt angivet datum lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av ogiltigt angivet datum misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av ogiltigt angivet datum misslyckades<br>"
@@ -492,7 +492,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av felaktigt formaterat datum lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av felaktigt formaterat datum misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av felaktigt formaterat datum misslyckades<br>"
@@ -511,7 +511,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av datum framåt i tiden lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av datum framåt i tiden misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av datum framåt i tiden misslyckades<br>"
@@ -525,7 +525,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av ogiltigt angiven tid lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av ogiltigt angiven tid misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av ogiltigt angiven tid misslyckades<br>"
@@ -538,7 +538,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av felaktigt angiven tid lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av felaktigt angiven tid misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av felaktigt angiven tid misslyckades<br>"
@@ -551,7 +551,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av tid längre än 8 timmar lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av tid längre än 8 timmar misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av tid längre än 8 timmar misslyckades<br>"
@@ -581,7 +581,7 @@ function test_KontrolleraIndata(): string {
         $svar=kontrolleraIndata($postData);
         $numFel=count($svar);
         if($numFel===1) {
-            $retur .="<p class='ok'>Kontroll av id som inte finns lyckades</p>";
+            $retur .="<p class='ok'>Kontroll av id som inte finns misslyckades, som förväntat</p>";
         }
         else {
             $retur .="<p class='error'>Kontroll av id som inte finns misslyckades<br>"
